@@ -20,6 +20,9 @@
  * Prompt the user to select target(s) from one or all of the online machines
  * Execute the command against all selected machines, add results and exit code column to dataframe and display to user
 
+# requisites:
+ * The run directory must contain a copy of psexec.exe: https://docs.microsoft.com/en-us/sysinternals/downloads/psexec
+
 # TODO: 
 
  * Complete gui
