@@ -46,7 +46,8 @@ def generate_host_list(dn):
     for idx, child in enumerate(ou.get_children()):
         ping_results.append(False)
         fdqn = compname_from_dn(child.dn)
-        computers.loc[idx] = {'fdqn' : fdqn, 'ip_address' : socket.gethostbyname(fdqn), 'online': False}
+        try: computers.loc[idx] = {'fdqn' : fdqn, 'ip_address' : socket.gethostbyname(fdqn), 'online': False}
+        except: computers.loc[idx] = {'fdqn' : fdqn, 'ip_address' : '192.0.2.254', 'online': False}
         threads.append(Thread(target=is_online,args=(computers.loc[idx]['ip_address'], ping_results, idx)))
         threads[idx].start()
         #computers[idx]['online'] = is_online(computers[idx]['fdqn'])
@@ -119,13 +120,14 @@ class interface:
             while thread.is_alive():
                 print('.', end = '')
                 sleep(0.5)
-        df['result'] = results
+        if len(results) != 0: df['result'] = results
         return df
 
 
 
 
 if __name__ == "__main__":     
+    
 
 
     interface()
