@@ -13,6 +13,7 @@ from threading import Thread
 from pprint import pprint
 from time import sleep
 import socket
+import logging
 
 def compname_from_dn(computer):
     '''Accepts a computer DN (distinguished name) string
@@ -63,13 +64,14 @@ def generate_host_list(dn):
 
 def psexec_runner(cmd, host, idx, results, user='', password=''):
     command_string = f'psexec.exe -s \\\\{host} {cmd}'
-    try:
-        results[idx] = subprocess.run(command_string, capture_output=True, text=False).returncode
-    except subprocess.CalledProcessError as e:
-        results[idx] = e.output
-    
 
- 
+    try:
+        subproc = subprocess.run(command_string, capture_output=True, text=False)
+        logging.info(f'{host} output: {subproc.stdout}')
+                
+        results[idx] = subproc.returncode        
+    except subprocess.CalledProcessError as e:        
+        results[idx] = e.output
 
 class interface:
     def __init__(self):        
@@ -79,7 +81,7 @@ class interface:
             computer_df = pd.DataFrame(generate_host_list(dn))
             computer_df = self.__select_targets(computer_df)
             computer_df['result'] = self.__send_command(computer_df, command)['result']
-            pprint(f'\n{command} ran against all target with the following results:\n')
+            print(f'\n"{command}" ran against all target with the following results:\n')
             pprint(computer_df)
             if input('Enter "x" to exit, any other key to run again: ').lower() == 'x': break
 
@@ -97,6 +99,7 @@ class interface:
                 if user_input == 'a':
                     return computer_df[computer_df["online"] == True]
                 elif user_input == 'n':
+                    return pd.DataFrame(columns=['fdqn','ip_address','online'])
                     break
     
     def __send_command(self, df, cmd):
@@ -106,7 +109,7 @@ class interface:
         results = []
         print(f'\n\nThe command "{cmd}" is about to be run on the following machine(s): \n {df}')
         while True:
-            confirm = input('Enter "y" to confirm, "n" to exit :').lower()
+            confirm = input('Enter "y" to confirm, "n" to exit: ').lower()
             if confirm == 'y':                
                 for idx, ip in enumerate(list(df['ip_address'])):   
                     results.append('')             
@@ -121,15 +124,14 @@ class interface:
                 print('.', end = '')
                 sleep(0.5)
         if len(results) != 0: df['result'] = results
+        else: df['result'] = 'not run'
         return df
 
 
 
 
-if __name__ == "__main__":     
-    
-
-
+if __name__ == "__main__":
+    logging.basicConfig(filename='ad_executer.log',level=logging.DEBUG)
     interface()
 
     

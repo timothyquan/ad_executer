@@ -20,8 +20,11 @@
  * Prompt the user to select target(s) from one or all of the online machines
  * Execute the command against all selected machines, add results and exit code column to dataframe and display to user
 
-# requisites:
+# Prerequisites:
  * The run directory must contain a copy of psexec.exe: https://docs.microsoft.com/en-us/sysinternals/downloads/psexec
+
+# Executing scripts
+ Use the command -c -f [full path to your script] for your target to execute a script (batch, etc).
 
 # TODO: 
 
